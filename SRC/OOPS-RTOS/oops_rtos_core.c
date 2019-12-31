@@ -30,8 +30,8 @@ void oops_rtos_idle_task( void *p_arg )
  */
 void oops_rtos_idle_init( void *p_arg )
 {
-	M_RTOS_TaskCreate ((oops_rtos_tcb*)      &IdleTaskTcb,
-	              (M_RTOS_TASK_PTR ) 			oops_rtos_idle_task,
+	OOPS_RTOS_TaskCreate ((oops_rtos_tcb*)      &IdleTaskTcb,
+	              (OOPS_RTOS_TASK_PTR ) 			oops_rtos_idle_task,
 	              (void *)       					0,
 	              (oops_rtos_u32*)     			&IdleTaskStk,
 	              (oops_rtos_u32) 						IDLE_STACK_SIZE,
@@ -46,9 +46,9 @@ void oops_rtos_idle_init( void *p_arg )
  * @author ma57457@163.com
  * @date 2019-11-25
  */
-void OOPS_RTOS_InsertNodeTaskList(m_rtos_tcb *p_tcb,oops_rtos_task_list **task_list)
+void OOPS_RTOS_InsertNodeTaskList(oops_rtos_tcb *p_tcb,oops_rtos_task_list **task_list)
 {
-	m_rtos_task_list *task_prt_new = (m_rtos_task_list*)m_rtos_malloc(sizeof(oops_rtos_task_list));
+	oops_rtos_task_list *task_prt_new = (oops_rtos_task_list*)oops_rtos_malloc(sizeof(oops_rtos_task_list));
 	/*这里需要添加内存获取失败的处理*/
 
 	if(NULL == (*task_list)){
@@ -68,7 +68,7 @@ void OOPS_RTOS_InsertNodeTaskList(m_rtos_tcb *p_tcb,oops_rtos_task_list **task_l
  * @author ma57457@163.com
  * @date 2019-11-25
  */
-void OOPS_RTOS_DeleteNodeTaskList(m_rtos_tcb *p_tcb,oops_rtos_task_list **task_list)
+void OOPS_RTOS_DeleteNodeTaskList(oops_rtos_tcb *p_tcb,oops_rtos_task_list **task_list)
 {
 	oops_rtos_task_list *del_node = NULL;
 
@@ -91,7 +91,7 @@ void OOPS_RTOS_DeleteNodeTaskList(m_rtos_tcb *p_tcb,oops_rtos_task_list **task_l
  * @author ma57457@163.com
  * @date 2019-11-25
  */
-m_rtos_u8 OOPS_RTOS_SearchNodeTaskList(m_rtos_tcb *p_tcb,oops_rtos_task_list **task_list)
+m_rtos_u8 OOPS_RTOS_SearchNodeTaskList(oops_rtos_tcb *p_tcb,oops_rtos_task_list **task_list)
 {
 	oops_rtos_u8 ret = NULL;
 	oops_rtos_task_list *bak_list = *task_list;
@@ -117,9 +117,9 @@ m_rtos_u8 OOPS_RTOS_SearchNodeTaskList(m_rtos_tcb *p_tcb,oops_rtos_task_list **t
  * @author ma57457@163.com
  * @date 2019-11-25
  */
-m_rtos_task_list* OOPS_RTOS_SearchNodeTaskList_Prev(m_rtos_tcb *p_tcb,oops_rtos_task_list **task_list)
+oops_rtos_task_list* OOPS_RTOS_SearchNodeTaskList_Prev(oops_rtos_tcb *p_tcb,oops_rtos_task_list **task_list)
 {
-	m_rtos_task_list *ret_addr = (oops_rtos_task_list *)NULL;
+	oops_rtos_task_list *ret_addr = (oops_rtos_task_list *)NULL;
 	oops_rtos_task_list *bak_list = *task_list;
 
 	if(p_tcb == (*task_list)->NextNode->TaskPtr){
@@ -146,9 +146,9 @@ m_rtos_task_list* OOPS_RTOS_SearchNodeTaskList_Prev(m_rtos_tcb *p_tcb,oops_rtos_
  * @author ma57457@163.com
  * @date 2019-11-25
  */
-void oops_rtos_task_move(m_rtos_tcb *target_tcb,m_rtos_task_list **src_list,oops_rtos_task_list **tar_list)
+void oops_rtos_task_move(oops_rtos_tcb *target_tcb,oops_rtos_task_list **src_list,oops_rtos_task_list **tar_list)
 {
-	m_rtos_task_list *rdy_node = (oops_rtos_task_list *)NULL;
+	oops_rtos_task_list *rdy_node = (oops_rtos_task_list *)NULL;
 	oops_rtos_task_list *prev_node = OOPS_RTOS_SearchNodeTaskList_Prev(target_tcb,src_list);
 
 	if(prev_node != NULL){
@@ -175,23 +175,23 @@ void oops_rtos_task_move(m_rtos_tcb *target_tcb,m_rtos_task_list **src_list,oops
  * @author ma57457@163.com
  * @date 2019-11-25
  */
-m_rtos_tcb*  oopsrtoe_get_highest_rdy_task(void)
+oops_rtos_tcb*  oopsrtoe_get_highest_rdy_task(void)
 {
 	oops_rtos_tcb *ret_tcb	= OOPS_RTOS_CurPtr;
 	oops_rtos_task_list *bak_node = OOPS_RTOS_RdyTaskList;
 
-	if( NULL == OOPS_RTOS_SearchNodeTaskList(M_RTOS_CurPtr,&M_RTOS_RdyTaskList))
+	if( NULL == OOPS_RTOS_SearchNodeTaskList(OOPS_RTOS_CurPtr,&OOPS_RTOS_RdyTaskList))
 		ret_tcb = OOPS_RTOS_RdyTaskList->TaskPtr;
 
-	if(M_RTOS_RdyTaskList == OOPS_RTOS_RdyTaskList->NextNode)/*没有任务的情况*/
+	if(OOPS_RTOS_RdyTaskList == OOPS_RTOS_RdyTaskList->NextNode)/*没有任务的情况*/
 		return ret_tcb = OOPS_RTOS_RdyTaskList->TaskPtr;
 
-	M_RTOS_RdyTaskList = OOPS_RTOS_RdyTaskList->NextNode;/*如果只有一个任务的情况*/
-	if ((M_RTOS_RdyTaskList->TaskPtr->Priority <= ret_tcb->Priority) || (M_RTOS_RdyTaskList->TaskPtr->Virtual_Pri <= ret_tcb->Virtual_Pri))
+	OOPS_RTOS_RdyTaskList = OOPS_RTOS_RdyTaskList->NextNode;/*如果只有一个任务的情况*/
+	if ((OOPS_RTOS_RdyTaskList->TaskPtr->Priority <= ret_tcb->Priority) || (OOPS_RTOS_RdyTaskList->TaskPtr->Virtual_Pri <= ret_tcb->Virtual_Pri))
 		ret_tcb =  OOPS_RTOS_RdyTaskList->TaskPtr;
 
-	for (; M_RTOS_RdyTaskList != bak_node; M_RTOS_RdyTaskList = OOPS_RTOS_RdyTaskList->NextNode){
-			if ((M_RTOS_RdyTaskList->TaskPtr->Priority <= ret_tcb->Priority) || (M_RTOS_RdyTaskList->TaskPtr->Virtual_Pri <= ret_tcb->Virtual_Pri))
+	for (; OOPS_RTOS_RdyTaskList != bak_node; OOPS_RTOS_RdyTaskList = OOPS_RTOS_RdyTaskList->NextNode){
+			if ((OOPS_RTOS_RdyTaskList->TaskPtr->Priority <= ret_tcb->Priority) || (OOPS_RTOS_RdyTaskList->TaskPtr->Virtual_Pri <= ret_tcb->Virtual_Pri))
 				ret_tcb =  OOPS_RTOS_RdyTaskList->TaskPtr;
 	}
 
@@ -205,9 +205,9 @@ m_rtos_tcb*  oopsrtoe_get_highest_rdy_task(void)
  */
 void oops_rtos_sched(void)
 {
-	M_RTOS_RdyPtr = oopsrtoe_get_highest_rdy_task();
+	OOPS_RTOS_RdyPtr = oopsrtoe_get_highest_rdy_task();
 
-	if(M_RTOS_RdyPtr == OOPS_RTOS_CurPtr)
+	if(OOPS_RTOS_RdyPtr == OOPS_RTOS_CurPtr)
 		return;
 
 	oops_rtos_contex_switch();
@@ -242,7 +242,7 @@ void oops_rtos_tick_init(oops_rtos_u32 tick_ms)
  */
 void oops_rtos_delay(oops_rtos_u32 tick)
 {
-	M_RTOS_CurPtr->DelayTicks = tick;
+	OOPS_RTOS_CurPtr->DelayTicks = tick;
 
 	oops_rtos_task_move(M_RTOS_CurPtr,&M_RTOS_RdyTaskList,&M_RTOS_PendTaskList);
 
@@ -337,7 +337,7 @@ void oops_rtos_init(void)
  * @author ma57457@163.com
  * @date 2019-11-25
  */
-oops_rtos_u32 *M_RTOS_TaskStackInit (M_RTOS_TASK_PTR  p_task,
+oops_rtos_u32 *OOPS_RTOS_TaskStackInit (M_RTOS_TASK_PTR  p_task,
                         void         *p_arg,
                         oops_rtos_u32      *p_stk_base,
                         oops_rtos_u32 stk_size)
@@ -377,7 +377,7 @@ oops_rtos_u32 *M_RTOS_TaskStackInit (M_RTOS_TASK_PTR  p_task,
  * @date 2019-11-25
  */
 void OOPS_RTOS_TaskCreate (oops_rtos_tcb 				*p_tcb,
-												M_RTOS_TASK_PTR   p_task,
+												OOPS_RTOS_TASK_PTR   p_task,
 												void          		*p_arg,
 												oops_rtos_u32        *p_stk_base,
 												oops_rtos_u32  			stk_size,
@@ -394,7 +394,7 @@ void OOPS_RTOS_TaskCreate (oops_rtos_tcb 				*p_tcb,
 	p_tcb->Priority = stk_pri;
 	p_tcb->Virtual_Pri = IDLE_TASK_PRIORITY;/*虚拟优先级直接拉到最低*/
 	p_tcb->Wait_Semaphore = NULL;
-	M_RTOS_InsertNodeTaskList(p_tcb,&M_RTOS_RdyTaskList);
+	OOPS_RTOS_InsertNodeTaskList(p_tcb,&OOPS_RTOS_RdyTaskList);
 }
 
 /**
@@ -419,7 +419,7 @@ void SysTick_Handler(void)
   * @author ma57457@163.com
   * @date 2019-11-25
   */
-void OOPS_RTOS_SemaphoreInit(m_rtos_semaphore *semaphore,oops_rtos_u8 semaphore_type)
+void OOPS_RTOS_SemaphoreInit(oops_rtos_semaphore *semaphore,oops_rtos_u8 semaphore_type)
 {
 	if(0 == semaphore_type){//二值信号量
 		semaphore->OwnerTaskPtr = NULL;
@@ -436,7 +436,7 @@ void OOPS_RTOS_SemaphoreInit(m_rtos_semaphore *semaphore,oops_rtos_u8 semaphore_
   * @author ma57457@163.com
   * @date 2019-11-25
   */
-m_rtos_u8 OOPS_RTOS_SemaphorePend(m_rtos_semaphore *semaphore,oops_rtos_u32 wait_time)
+m_rtos_u8 OOPS_RTOS_SemaphorePend(oops_rtos_semaphore *semaphore,oops_rtos_u32 wait_time)
 {
 	oops_rtos_u8 ret=SEMAPHORE_GET_FILE;
 
@@ -451,13 +451,13 @@ m_rtos_u8 OOPS_RTOS_SemaphorePend(m_rtos_semaphore *semaphore,oops_rtos_u32 wait
 				semaphore->OwnerTaskPtr = OOPS_RTOS_CurPtr;
 				ret = SEMAPHORE_GET_SUCCESS;
 			}else{
-				M_RTOS_CurPtr->Wait_Semaphore = semaphore;
+				OOPS_RTOS_CurPtr->Wait_Semaphore = semaphore;
 				if (semaphore->OwnerTaskPtr->Priority < OOPS_RTOS_CurPtr->Priority)
 					semaphore->OwnerTaskPtr->Virtual_Pri = OOPS_RTOS_CurPtr->Priority;
 				oops_rtos_set_interrupt_start();
 				oops_rtos_delay (wait_time);/*挂起任务*/
 
-				if (M_RTOS_CurPtr->Wait_Semaphore == semaphore)
+				if (OOPS_RTOS_CurPtr->Wait_Semaphore == semaphore)
 					ret = SEMAPHORE_GET_SUCCESS;
 			}
 			oops_rtos_set_interrupt_start();
@@ -489,8 +489,8 @@ m_rtos_u8 OOPS_RTOS_SemaphorePost(oops_rtos_semaphore *semaphore)
 	{
 		case MUTEX:{
 			semaphore->OwnerTaskPtr = NULL;
-			M_RTOS_CurPtr->Wait_Semaphore = NULL;
-			M_RTOS_CurPtr->Virtual_Pri = IDLE_TASK_PRIORITY;
+			OOPS_RTOS_CurPtr->Wait_Semaphore = NULL;
+			OOPS_RTOS_CurPtr->Virtual_Pri = IDLE_TASK_PRIORITY;
 			ret = SEMAPHORE_GET_SUCCESS;
 		}
 			break;

@@ -9,16 +9,16 @@
 void oops_rtos_init(void);
 void oops_rtos_sched(void);
 void OOPS_RTOS_TaskCreate (oops_rtos_tcb *p_tcb,
-                   M_RTOS_TASK_PTR   p_task,
+                   OOPS_RTOS_TASK_PTR   p_task,
                    void          *p_arg,
                    oops_rtos_u32       *p_stk_base,
                    oops_rtos_u32  stk_size,
 									 oops_rtos_u32	 			stk_pri);
 
 void oops_rtos_delay(oops_rtos_u32 tick);
-void OOPS_RTOS_SemaphoreInit(m_rtos_semaphore *semaphore,oops_rtos_u8 semaphore_type);
-m_rtos_u8 OOPS_RTOS_SemaphorePend(m_rtos_semaphore *semaphore,oops_rtos_u32 wait_time);
-m_rtos_u8 OOPS_RTOS_SemaphorePost(oops_rtos_semaphore *semaphore);
+void OOPS_RTOS_SemaphoreInit(oops_rtos_semaphore *semaphore,oops_rtos_u8 semaphore_type);
+oops_rtos_u8 OOPS_RTOS_SemaphorePend(oops_rtos_semaphore *semaphore,oops_rtos_u32 wait_time);
+oops_rtos_u8 OOPS_RTOS_SemaphorePost(oops_rtos_semaphore *semaphore);
 
 void oops_rtos_heap_buffer_init(void);
 void* oops_rtos_malloc(uint32_t size);
