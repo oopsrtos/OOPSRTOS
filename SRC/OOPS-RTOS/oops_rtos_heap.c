@@ -1,4 +1,5 @@
 #include "string.h"
+
 #define HEAP_QLY 16
 
 struct general_buf
@@ -53,7 +54,7 @@ void* oops_rtos_malloc(uint32_t size)
 		Heap_Buf.block_qly -= free_num;
 		address = &Heap_Buf.buffer[(i-(free_num-1))*HEAP_QLY];
 		for(j=0;j<free_num;j++)
-			Heap_Buf.dirty[(i-(free_num-1))+j] = j;
+			Heap_Buf.dirty[(i-(free_num-1))+j] = j+1;
 	}
 
 	return address;
@@ -68,18 +69,17 @@ void* oops_rtos_malloc(uint32_t size)
 void oops_rtos_free(void* address)
 {
 	uint32_t offset=((uint8_t*)address-Heap_Buf.buffer)/HEAP_QLY;
-	uint32_t i=0;
+	uint8_t dirtyval=0;
 
 	if(Heap_Buf.dirty[offset] != 1){
 		return;
 	}else{
-
 		do{
-			offset += i;
-			i = Heap_Buf.dirty[offset];
 			Heap_Buf.dirty[offset] = 0;
 			Heap_Buf.block_qly++;
-		}while(1!=i||0!=i||offset>=sizeof(Heap_Buf.dirty));
+			offset ++;
+			dirtyval = Heap_Buf.dirty[offset];
+		}while( dirtyval > 1 && offset < sizeof(Heap_Buf.dirty) );	
 	}
 }
 
