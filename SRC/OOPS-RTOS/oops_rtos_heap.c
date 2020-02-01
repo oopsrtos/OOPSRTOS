@@ -4,9 +4,9 @@
 
 struct general_buf
 {
-	uint32_t block_qly;					//剩余缓存块
-	uint8_t dirty[100];					//缓存空间脏标志
-	uint8_t buffer[HEAP_QLY*100];		//缓存空间
+	unsigned int block_qly;					//剩余缓存块
+	unsigned char dirty[100];					//缓存空间脏标志
+	unsigned char buffer[HEAP_QLY*100];		//缓存空间
 }Heap_Buf;
 
 /**
@@ -28,13 +28,13 @@ void oops_rtos_heap_buffer_init(void)
  * @author ma57457@163.com
  * @date 2019-11-25
  */
-void* oops_rtos_malloc(uint32_t size)
+void* oops_rtos_malloc(unsigned int size)
 {
-	uint32_t size_need=size/HEAP_QLY+(size%16?1:0);/*获得块需求*/
-	uint32_t i,j;
-	uint32_t free_num=0;
-	uint8_t* address=NULL;
-	uint8_t enought_space=0;
+	unsigned int size_need=size/HEAP_QLY+(size%16?1:0);/*获得块需求*/
+	unsigned int i,j;
+	unsigned int free_num=0;
+	unsigned char* address=NULL;
+	unsigned char enought_space=0;
 
 	if(size_need>Heap_Buf.block_qly)
 		return NULL;
@@ -68,8 +68,8 @@ void* oops_rtos_malloc(uint32_t size)
  */
 void oops_rtos_free(void* address)
 {
-	uint32_t offset=((uint8_t*)address-Heap_Buf.buffer)/HEAP_QLY;
-	uint8_t dirtyval=0;
+	unsigned int offset=((unsigned char*)address-Heap_Buf.buffer)/HEAP_QLY;
+	unsigned char dirtyval=0;
 
 	if(Heap_Buf.dirty[offset] != 1){
 		return;

@@ -1,7 +1,7 @@
 #define OOPS_RTOS_GLOBALS
 #include "OOPS-RTOS.h"
 #undef OOPS_RTOS_GLOBALS
-
+#include <string.h>
 /***************************************************************************************************
 						oops_rtos idle task
 ***************************************************************************************************/
@@ -20,7 +20,7 @@ void oops_rtos_idle_task( void *p_arg )
 {
 	p_arg = p_arg;
 	while(1)
-		__ASM("NOP");
+		asm("nop");
 }
 /**
  * @brief  idle task
@@ -91,9 +91,10 @@ void OOPS_RTOS_DeleteNodeTaskList(oops_rtos_tcb *p_tcb,oops_rtos_task_list **tas
  * @author ma57457@163.com
  * @date 2019-11-25
  */
-m_rtos_u8 OOPS_RTOS_SearchNodeTaskList(oops_rtos_tcb *p_tcb,oops_rtos_task_list **task_list)
+
+oops_rtos_u8 OOPS_RTOS_SearchNodeTaskList(oops_rtos_tcb *p_tcb,oops_rtos_task_list **task_list)
 {
-	oops_rtos_u8 ret = NULL;
+	oops_rtos_u8 ret = 0;
 	oops_rtos_task_list *bak_list = *task_list;
 
 	if(p_tcb == (*task_list)->TaskPtr){
@@ -180,7 +181,7 @@ oops_rtos_tcb*  oopsrtoe_get_highest_rdy_task(void)
 	oops_rtos_tcb *ret_tcb	= OOPS_RTOS_CurPtr;
 	oops_rtos_task_list *bak_node = OOPS_RTOS_RdyTaskList;
 
-	if( NULL == OOPS_RTOS_SearchNodeTaskList(OOPS_RTOS_CurPtr,&OOPS_RTOS_RdyTaskList))
+	if( EMPTY == OOPS_RTOS_SearchNodeTaskList(OOPS_RTOS_CurPtr,&OOPS_RTOS_RdyTaskList))
 		ret_tcb = OOPS_RTOS_RdyTaskList->TaskPtr;
 
 	if(OOPS_RTOS_RdyTaskList == OOPS_RTOS_RdyTaskList->NextNode)/*没有任务的情况*/
@@ -227,12 +228,14 @@ void oops_rtos_sched(void)
  */
 void oops_rtos_tick_init(oops_rtos_u32 tick_ms)
 {
+/*
 	SysTick->LOAD = tick_ms*SystemCoreClock/1000-1;
 	NVIC_SetPriority(SysTick_IRQn,(1<<__NVIC_PRIO_BITS)-1);
 	SysTick->VAL = 0;
 	SysTick->CTRL = SysTick_CTRL_CLKSOURCE_Msk|\
 									SysTick_CTRL_TICKINT_Msk|\
 									SysTick_CTRL_ENABLE_Msk;
+*/
 }
 /**
  * @brief  tick delay
@@ -244,7 +247,7 @@ void oops_rtos_delay(oops_rtos_u32 tick)
 {
 	OOPS_RTOS_CurPtr->DelayTicks = tick;
 
-	oops_rtos_task_move(M_RTOS_CurPtr,&M_RTOS_RdyTaskList,&M_RTOS_PendTaskList);
+	oops_rtos_task_move(OOPS_RTOS_CurPtr,&OOPS_RTOS_RdyTaskList,&OOPS_RTOS_PendTaskList);
 
 	oops_rtos_sched();
 }
@@ -259,8 +262,8 @@ void oops_rtos_pend_list_deal()
 	oops_rtos_task_list *bak_node = OOPS_RTOS_PendTaskList;
 	oops_rtos_task_list *del_dode = NULL;
 
-	if(M_RTOS_PendTaskList != NULL){/*假如有任务挂起*/
-		M_RTOS_PendTaskList = OOPS_RTOS_PendTaskList->NextNode;
+	if(OOPS_RTOS_PendTaskList != NULL){/*假如有任务挂起*/
+		OOPS_RTOS_PendTaskList = OOPS_RTOS_PendTaskList->NextNode;
 		/*假定只有一个挂起任务的情况*/
 			del_dode = OOPS_RTOS_PendTaskList;
 
@@ -272,18 +275,18 @@ void oops_rtos_pend_list_deal()
 					if (del_dode->TaskPtr->DelayTicks != INFINITE_WAIT)				/*无限等待不处理延时时间*/
 						del_dode->TaskPtr->DelayTicks--;
 				}
-			}else		if (del_dode->TaskPtr->DelayTicks != NULL){
+			}else if (del_dode->TaskPtr->DelayTicks != EMPTY){
 				del_dode->TaskPtr->DelayTicks--;
 			}
 
 			if (0 == del_dode->TaskPtr->DelayTicks){
 				if(bak_node == del_dode)
 					bak_node = bak_node->NextNode;
-				oops_rtos_task_move(del_dode->TaskPtr,&M_RTOS_PendTaskList,&M_RTOS_RdyTaskList);
+				oops_rtos_task_move(del_dode->TaskPtr,&OOPS_RTOS_PendTaskList,&OOPS_RTOS_RdyTaskList);
 			}
 		/*假定多个挂起任务的情况*/
 		bak_node = OOPS_RTOS_PendTaskList;
-		for (; M_RTOS_PendTaskList != bak_node; M_RTOS_PendTaskList = OOPS_RTOS_PendTaskList->NextNode){
+		for (; OOPS_RTOS_PendTaskList != bak_node; OOPS_RTOS_PendTaskList = OOPS_RTOS_PendTaskList->NextNode){
 			del_dode = OOPS_RTOS_PendTaskList;
 
 			if(del_dode->TaskPtr->Wait_Semaphore != NULL){								 /*等待信号量的处理*/
@@ -294,14 +297,14 @@ void oops_rtos_pend_list_deal()
 					if (del_dode->TaskPtr->DelayTicks != INFINITE_WAIT)				/*无限等待不处理延时时间*/
 						del_dode->TaskPtr->DelayTicks--;
 				}
-			}else		if (del_dode->TaskPtr->DelayTicks != NULL){
+			}else		if (del_dode->TaskPtr->DelayTicks != EMPTY){
 				del_dode->TaskPtr->DelayTicks--;
 			}
 
 			if (0 == del_dode->TaskPtr->DelayTicks){
 				if(bak_node == del_dode)
 					bak_node = bak_node->NextNode;
-				oops_rtos_task_move(del_dode->TaskPtr,&M_RTOS_PendTaskList,&M_RTOS_RdyTaskList);
+				oops_rtos_task_move(del_dode->TaskPtr,&OOPS_RTOS_PendTaskList,&OOPS_RTOS_RdyTaskList);
 			}
 		}
 	}
@@ -325,9 +328,9 @@ void oops_rtos_init(void)
 
 	oops_rtos_idle_init(NULL);/*空闲任务初始化*/
 
-	M_RTOS_CurPtr = (oops_rtos_tcb *)0;
-	M_RTOS_RdyPtr = &IdleTaskTcb;
-	M_RTOS_PendTaskList = (oops_rtos_task_list *)0;
+	OOPS_RTOS_CurPtr = (oops_rtos_tcb *)0;
+	OOPS_RTOS_RdyPtr = &IdleTaskTcb;
+	OOPS_RTOS_PendTaskList = (oops_rtos_task_list *)0;
 
 	oops_rtos_tick_init(10);/*10ms slice*/
 }
@@ -337,7 +340,7 @@ void oops_rtos_init(void)
  * @author ma57457@163.com
  * @date 2019-11-25
  */
-oops_rtos_u32 *OOPS_RTOS_TaskStackInit (M_RTOS_TASK_PTR  p_task,
+oops_rtos_u32 *OOPS_RTOS_TaskStackInit (OOPS_RTOS_TASK_PTR  p_task,
                         void         *p_arg,
                         oops_rtos_u32      *p_stk_base,
                         oops_rtos_u32 stk_size)
@@ -403,7 +406,7 @@ void OOPS_RTOS_TaskCreate (oops_rtos_tcb 				*p_tcb,
   * @author ma57457@163.com
   * @date 2019-11-25
   */
-void SysTick_Handler(void)
+__attribute__((weak)) void SysTick_Handler(void)
 {
 	oops_rtos_pend_list_deal();
 	oops_rtos_sched();
@@ -436,7 +439,7 @@ void OOPS_RTOS_SemaphoreInit(oops_rtos_semaphore *semaphore,oops_rtos_u8 semapho
   * @author ma57457@163.com
   * @date 2019-11-25
   */
-m_rtos_u8 OOPS_RTOS_SemaphorePend(oops_rtos_semaphore *semaphore,oops_rtos_u32 wait_time)
+oops_rtos_u8 OOPS_RTOS_SemaphorePend(oops_rtos_semaphore *semaphore,oops_rtos_u32 wait_time)
 {
 	oops_rtos_u8 ret=SEMAPHORE_GET_FILE;
 
@@ -478,7 +481,7 @@ m_rtos_u8 OOPS_RTOS_SemaphorePend(oops_rtos_semaphore *semaphore,oops_rtos_u32 w
   * @author ma57457@163.com
   * @date 2019-11-25
   */
-m_rtos_u8 OOPS_RTOS_SemaphorePost(oops_rtos_semaphore *semaphore)
+oops_rtos_u8 OOPS_RTOS_SemaphorePost(oops_rtos_semaphore *semaphore)
 {
 	oops_rtos_u8 ret=SEMAPHORE_GET_FILE;
 

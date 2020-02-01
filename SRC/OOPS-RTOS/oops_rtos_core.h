@@ -21,6 +21,6 @@ oops_rtos_u8 OOPS_RTOS_SemaphorePend(oops_rtos_semaphore *semaphore,oops_rtos_u3
 oops_rtos_u8 OOPS_RTOS_SemaphorePost(oops_rtos_semaphore *semaphore);
 
 void oops_rtos_heap_buffer_init(void);
-void* oops_rtos_malloc(uint32_t size);
+void* oops_rtos_malloc(unsigned int size);
 void oops_rtos_free(void* address);
 #endif
