@@ -1,0 +1,12 @@
+# -*- GDB-Script -*-
+# "file" should place before "target"
+# set debug arm
+# 
+file build/stm32f103iic_tool.elf
+# connet target board
+target remote localhost:3333
+# start tui
+#-
+
+#gef config context.layout "-args source threads trace extra memory"
+
