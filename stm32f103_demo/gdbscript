@@ -2,7 +2,7 @@
 # "file" should place before "target"
 # set debug arm
 # 
-file build/stm32f103iic_tool.elf
+file build/oops_rtos_demo.elf
 # connet target board
 target remote localhost:3333
 # start tui
