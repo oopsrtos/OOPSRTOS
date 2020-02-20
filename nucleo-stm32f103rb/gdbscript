@@ -1,0 +1,14 @@
+# -*- GDB-Script -*-
+# "file" should place before "target"
+# set debug arm
+# 
+#file build/nucleo-f103rb.elf
+file build/nucleo-stm32f103rb.elf
+# connet target board
+target remote localhost:1234
+b main.c:main
+# start tui
+#-
+
+#gef config context.layout "-args source threads trace extra memory"
+
