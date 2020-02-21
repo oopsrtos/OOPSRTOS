@@ -1,0 +1,31 @@
+# function pl
+# it can print value list
+# you just need to input commandline : source function.gdb
+# then you can get a new commandline "pl",enjoy it
+define pl
+set $Node = OOPS_RTOS_RdyTaskList
+set $Node_bak = OOPS_RTOS_RdyTaskList
+echo OOPS_RTOS_RdyTaskList \n
+p *$Node
+set $Node = $Node.NextNode
+
+while ($Node_bak != $Node)
+    p *$Node
+    set $Node = $Node.NextNode
+end
+
+echo OOPS_RTOS_PendTaskList \n
+set $Node = OOPS_RTOS_PendTaskList
+set $Node_bak = OOPS_RTOS_PendTaskList
+p *$Node
+set $Node = $Node.NextNode
+
+while ($Node_bak != $Node)
+    p *$Node
+    set $Node = $Node.NextNode
+end
+echo OOPS_RTOS_RdyPtr \n
+p OOPS_RTOS_RdyPtr
+echo OOPS_RTOS_CurPtr \n
+p OOPS_RTOS_CurPtr
+end
