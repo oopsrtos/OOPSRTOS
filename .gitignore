@@ -1,0 +1,9 @@
+# Compiled source #
+###################
+nucleo-stm32f103rb/build/*
+nucleo-stm32f103rb/G*
+nucleo-stm32f103rb/.gdb_history
+stm32f103_demo/build/*
+stm32f103_demo/G*
+stm32f103_demo/.gdb_history
+
