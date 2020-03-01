@@ -206,6 +206,12 @@ gdbserver:
 	-f /usr/share/openocd/scripts/target/stm32f1x.cfg \
 	-c "init" -c "reset halt"
 
+simulate: $(BUILD_DIR)/$(TARGET).elf
+	/home/martin/software/xPacks/qemu-arm/2.8.0-8/bin/qemu-system-gnuarmeclipse  --board NUCLEO-F103RB --image $(BUILD_DIR)/$(TARGET).elf
+
+simulate_debug: $(BUILD_DIR)/$(TARGET).elf
+	/home/martin/software/xPacks/qemu-arm/2.8.0-8/bin/qemu-system-gnuarmeclipse  -s -S --board NUCLEO-F103RB --image $(BUILD_DIR)/$(TARGET).elf
+
 #######################################
 # dependencies
 #######################################

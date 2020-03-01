@@ -4,7 +4,7 @@
 # 
 file build/oops_rtos_demo.elf
 # connet target board
-target remote localhost:3333
+target remote localhost:1234
 # start tui
 #-
 
