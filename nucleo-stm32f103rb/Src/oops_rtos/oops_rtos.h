@@ -70,7 +70,8 @@ struct	oops_rtos_semaphore_def
 OOPS_RTOS_EXT    oops_rtos_tcb         *OOPS_RTOS_CurPtr;		//汇编函数调用的全局变量
 OOPS_RTOS_EXT    oops_rtos_tcb         *OOPS_RTOS_RdyPtr;		//汇编函数调用的全局变量
 OOPS_RTOS_EXT    oops_rtos_task_list   *OOPS_RTOS_RdyTaskList;	//就绪任务列表
-OOPS_RTOS_EXT    oops_rtos_task_list   *OOPS_RTOS_PendTaskList;//阻塞任务列表
+OOPS_RTOS_EXT    oops_rtos_task_list   *OOPS_RTOS_PendTaskList; //阻塞任务列表
+OOPS_RTOS_EXT    oops_rtos_u32         OOPS_SWITCH_LOCK;        //切换锁
 /*************************************************************************************************************************
                                                   函数声明
 *************************************************************************************************************************/

@@ -33,7 +33,7 @@ void* oops_rtos_malloc(unsigned int size)
 	unsigned int size_need=size/HEAP_QLY+(size%16?1:0);/*获得块需求*/
 	unsigned int i,j;
 	unsigned int free_num=0;
-	unsigned char* address=NULL;
+	void* address=NULL;
 	unsigned char enought_space=0;
 
 	if(size_need>Heap_Buf.block_qly)

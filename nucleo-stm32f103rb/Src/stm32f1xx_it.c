@@ -179,16 +179,10 @@ __attribute__((weak)) void PendSV_Handler(void)
 /**
   * @brief This function handles System tick timer.
   */
-volatile uint8_t flag = 0;
-volatile uint32_t delay = 100;
 __attribute__((weak)) void SysTick_Handler(void)
 {
   /* USER CODE BEGIN SysTick_IRQn 0 */
-    static uint32_t timer =  0;
   /* USER CODE END SysTick_IRQn 0 */
-    timer++;
-    if (!(timer%delay))
-        flag = 1;
   /* USER CODE BEGIN SysTick_IRQn 1 */
 
   /* USER CODE END SysTick_IRQn 1 */
@@ -204,6 +198,7 @@ __attribute__((weak)) void SysTick_Handler(void)
 /**
   * @brief This function handles EXTI line[15:10] interrupts.
   */
+volatile uint8_t flag = 0;
 void EXTI15_10_IRQHandler(void)
 {
   /* USER CODE BEGIN EXTI15_10_IRQn 0 */
@@ -213,9 +208,7 @@ void EXTI15_10_IRQHandler(void)
   {
     LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_13);
     /* USER CODE BEGIN LL_EXTI_LINE_13 */
-    delay += 100;
-    if (delay>10000)
-        delay = 100;
+    flag = 1;
     /* USER CODE END LL_EXTI_LINE_13 */
   }
   /* USER CODE BEGIN EXTI15_10_IRQn 1 */

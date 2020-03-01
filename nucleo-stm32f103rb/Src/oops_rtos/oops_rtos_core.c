@@ -72,11 +72,9 @@ void OOPS_RTOS_InsertNodeTaskList(oops_rtos_tcb *p_tcb,oops_rtos_task_list **tas
  */
 void OOPS_RTOS_DeleteNodeTaskList(oops_rtos_tcb *p_tcb,oops_rtos_task_list **task_list)
 {
-    oops_rtos_task_list *del_node = NULL;
+    oops_rtos_task_list *del_node = (oops_rtos_task_list*)NULL;
 
-    if(NULL == task_list){
-        return;
-    }else{
+    if((*task_list) != NULL ){
         del_node = (*task_list)->NextNode;
         for (;del_node != (*task_list)->NextNode;del_node = (*task_list)->NextNode){
             if (((del_node->TaskPtr) == p_tcb) && \
@@ -125,7 +123,9 @@ oops_rtos_task_list* OOPS_RTOS_SearchNodeTaskList_Prev(oops_rtos_tcb *p_tcb,\
                                                        oops_rtos_task_list **task_list)
 {
     oops_rtos_task_list *ret_addr = (oops_rtos_task_list *)NULL;
-    oops_rtos_task_list *bak_list = *task_list;
+    oops_rtos_task_list *bak_list = (oops_rtos_task_list *)NULL;
+
+    bak_list = *task_list;
 
     if(p_tcb == (*task_list)->NextNode->TaskPtr){
         ret_addr = (*task_list);
@@ -171,7 +171,9 @@ void oops_rtos_task_move(oops_rtos_tcb *target_tcb,
         }
     }
 
+    /* OOPS_RTOS_InsertNodeTaskList(target_tcb,tar_list); */
 
+    /* OOPS_RTOS_DeleteNodeTaskList_(target_tcb,src_list); */
 }
 /***************************************************************************************************
                                 oops_rtos  cotrex switch
@@ -257,11 +259,14 @@ void oops_rtos_tick_init(oops_rtos_u32 tick_ms)
  */
 void oops_rtos_delay(oops_rtos_u32 tick)
 {
+    oops_rtos_set_interrupt_stop();
+    OOPS_SWITCH_LOCK = 2;
     OOPS_RTOS_CurPtr->DelayTicks = tick;
 
     oops_rtos_task_move(OOPS_RTOS_CurPtr,&OOPS_RTOS_RdyTaskList,&OOPS_RTOS_PendTaskList);
 
     oops_rtos_sched();
+    oops_rtos_set_interrupt_start();
 }
 /**
  * @brief  oops_rtos_pend_list_deal
@@ -338,11 +343,12 @@ void oops_rtos_init(void)
 
     oops_rtos_heap_buffer_init();
 
-    oops_rtos_idle_init(NULL);/*空闲任务初始化*/
-
     OOPS_RTOS_CurPtr = (oops_rtos_tcb *)0;
     OOPS_RTOS_RdyPtr = &IdleTaskTcb;
     OOPS_RTOS_PendTaskList = (oops_rtos_task_list *)0;
+    OOPS_RTOS_RdyTaskList = (oops_rtos_task_list *)0;
+
+    oops_rtos_idle_init(NULL);/*空闲任务初始化*/
 
     oops_rtos_tick_init(1);/*1ms time intelval slice*/
 }
@@ -359,7 +365,7 @@ oops_rtos_u32 *OOPS_RTOS_TaskStackInit (OOPS_RTOS_TASK_PTR  p_task,     \
 {
     oops_rtos_u32  *p_stk;
 
-    p_stk = &p_stk_base[stk_size];                       /* 异常发生时自动保存的寄存器  */
+    p_stk = &p_stk_base[stk_size/sizeof(oops_rtos_u32)]; /* 异常发生时自动保存的寄存器  */
     *--p_stk = (oops_rtos_u32)0x01000000u;               /* xPSR的bit24必须置1,这个bit位指示指令为arm或者thumb指令，armv7-m只支持thumb指令 */
     *--p_stk = (oops_rtos_u32)p_task;                    /* 任务的入口地址                                         */
     *--p_stk = (oops_rtos_u32)0u;                        /* R14 (LR)                                               */
@@ -419,10 +425,10 @@ void OOPS_RTOS_TaskCreate (oops_rtos_tcb        *p_tcb, \
   */
 void SysTick_Handler(void)
 {
-    //extern int test_systick;
-    //test_systick++;
-    oops_rtos_pend_list_deal();
-    oops_rtos_sched();
+    if (!OOPS_SWITCH_LOCK){
+        oops_rtos_pend_list_deal();
+        oops_rtos_sched();
+    }
 }
 /***************************************************************************************************
     semaphore

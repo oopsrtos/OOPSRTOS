@@ -59,18 +59,17 @@ static   oops_rtos_tcb    Task2TCB;
 static   oops_rtos_u32   Task1Stk[TASK1_STK_SIZE];
 static   oops_rtos_u32   Task2Stk[TASK2_STK_SIZE];
 
+uint8_t stop =0;
 void Task1( void *p_arg )
 {
-	for( ;; ){
-        oops_rtos_delay( 200 );
-        LL_GPIO_TogglePin(LD2_GPIO_Port,LD2_Pin);
-	}
+    oops_rtos_delay( 100 );
 }
 
-
+extern uint8_t flag;
 void Task2( void *p_arg )
 {
 	for( ;; ){
+        LL_GPIO_TogglePin(LD2_GPIO_Port,LD2_Pin);
 		oops_rtos_delay( 200 );
 	}
 }
@@ -100,7 +99,7 @@ int main(void)
   LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_AFIO);
   LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_PWR);
 
-  NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_4);
+  NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_0);//中断不允许嵌套
 
   /* System interrupt init*/
 
@@ -111,7 +110,7 @@ int main(void)
   /* USER CODE BEGIN Init */
 
   /* USER CODE END Init */
-
+  oops_rtos_init();
   /* Configure the system clock */
   SystemClock_Config();
 
@@ -123,7 +122,6 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-  oops_rtos_init();
 
   OOPS_RTOS_TaskCreate ((oops_rtos_tcb*)      &Task1TCB,    \
                         (OOPS_RTOS_TASK_PTR ) Task1,\

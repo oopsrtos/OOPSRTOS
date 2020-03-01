@@ -10,7 +10,7 @@
 /* 外部文件引人的参考 */
 .extern  OOPS_RTOS_CurPtr
 .extern  OOPS_RTOS_RdyPtr
-
+.extern  OOPS_SWITCH_LOCK
 /* 本文件定义的函数 */
 /********************************************************************************************************
 *                                               常量
@@ -88,6 +88,11 @@ OSStartHang:
 PendSV_Handler:
 /* 关中断，NMI和HardFault除外，防止上下文切换被中断 */
     CPSID   I
+    /* 载入外部变量OOPS_SWITCH_LOCK */
+    LDR     R0, = OOPS_SWITCH_LOCK
+    LDR     R1, = 0
+    /* 存储 OOPS_RTOS_RdyPtr 到 OOPS_SWITCH_LOCK */
+    STR     R1, [R0]
 /* 将psp的值加载到R0 */
     MRS     R0, PSP
 /* 判断R0，如果值为0则跳转到OS_CPU_PendSVHandler_nosave */

@@ -6,7 +6,11 @@
 file build/nucleo-stm32f103rb.elf
 # connet target board
 target remote localhost:1234
-b main.c:main
+b Task1
+b Task2
+b SysTick_Handler
+b PendSV_Handler
+source  function.gdb
 # start tui
 #-
 
