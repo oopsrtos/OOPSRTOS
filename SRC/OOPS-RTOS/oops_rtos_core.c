@@ -74,7 +74,7 @@ void OOPS_RTOS_DeleteNodeTaskList(oops_rtos_tcb *p_tcb,oops_rtos_task_list **tas
 {
     oops_rtos_task_list *del_node = NULL;
 
-    if(NULL == task_list){
+    if(NULL == (*task_list)){
         return;
     }else{
         del_node = (*task_list)->NextNode;
